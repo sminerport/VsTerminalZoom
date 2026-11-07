@@ -227,7 +227,7 @@ namespace VsTerminalZoom
             {
                 string how = FrameDocker.DockBeside(targetFrame, newFrame, right: true);
                 Log.Write("split: " + how);
-                if (GetService(typeof(SVsStatusbar)) is IVsStatusbar statusbar)
+                if (await GetServiceAsync(typeof(SVsStatusbar)) is IVsStatusbar statusbar)
                 {
                     statusbar.SetText("Terminal.Split: " + how + ".");
                 }

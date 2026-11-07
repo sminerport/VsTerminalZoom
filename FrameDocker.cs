@@ -27,7 +27,7 @@ namespace VsTerminalZoom
 
             object targetView = GetFrameView(target);
             object dockingView = GetFrameView(docking);
-            Assembly viewManager = targetView.GetType().Assembly;
+            Assembly viewManager = FindViewManagerAssembly(targetView.GetType());
 
             Type dockOperations = viewManager.GetType(ShellNamespace + "DockOperations", true);
             Type dockDirection = viewManager.GetType(ShellNamespace + "DockDirection", true);
@@ -161,6 +161,31 @@ namespace VsTerminalZoom
                 + (string.IsNullOrEmpty(title) ? string.Empty : " '" + title + "'")
                 + (children == null ? string.Empty : " [" + children + " children]")
                 + " #" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(element).ToString("x");
+        }
+
+        /// <summary>
+        /// The frame's view is a WindowManagement subclass of View, so its own assembly is the wrong one;
+        /// walk up to ViewElement, which lives in Microsoft.VisualStudio.Shell.ViewManager next to DockOperations.
+        /// </summary>
+        private static Assembly FindViewManagerAssembly(Type viewType)
+        {
+            for (Type type = viewType; type != null; type = type.BaseType)
+            {
+                if (type.FullName == ShellNamespace + "ViewElement")
+                {
+                    return type.Assembly;
+                }
+            }
+
+            foreach (Assembly loaded in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (loaded.GetName().Name == "Microsoft.VisualStudio.Shell.ViewManager")
+                {
+                    return loaded;
+                }
+            }
+
+            throw new TypeLoadException("Microsoft.VisualStudio.Shell.ViewManager is not loaded; the frame view is a " + viewType.FullName);
         }
 
         private static object GetFrameView(IVsWindowFrame frame)
