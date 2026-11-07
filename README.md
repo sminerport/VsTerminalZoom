@@ -12,6 +12,8 @@ the VS Code terminal bindings used in `keybindings.json`:
 | `Ctrl+Shift+``         | `workbench.action.terminal.new`                   | `Terminal.New`            |
 | `Ctrl+Shift+W`         | `workbench.action.terminal.kill`                  | `Terminal.Close`          |
 | `Ctrl+\`               | `workbench.action.terminal.split`                 | `Terminal.Split`          |
+| `Ctrl+.` / `Ctrl+,`    | `terminal.focusNextPane` / `focusPreviousPane`    | `Terminal.FocusNextPane` / `FocusPreviousPane` |
+| `Ctrl+Shift+.` / `Ctrl+Shift+,` | `terminal.focusNext` / `focusPrevious`   | `Terminal.FocusNext` / `FocusPrevious` |
 
 ## New terminal
 
@@ -22,7 +24,7 @@ contracts assembly `Microsoft.VisualStudio.Terminal.dll` is not on NuGet; the pr
 copy (`$(VSAPPIDDIR)` from a Developer PowerShell, falling back to the Community install path).
 Windows Terminal gets the same key through a `Terminal.OpenNewTab` keybinding in its settings.json.
 
-## Split terminal (prototype)
+## Split terminal
 
 `Terminal.Split` (Terminal scope, Ctrl+\) opens a new default-profile terminal and docks it to the right of the
 focused one. Visual Studio has no public API for docking one tool window beside another (`IVsWindowFrame.SetFramePos`
@@ -31,6 +33,14 @@ only moves and resizes), so `FrameDocker` reaches into the docking engine by ref
 `Microsoft.VisualStudio.Shell.ViewManager.dll` places it. The new terminal's frame is found by diffing the tool
 window list before and after creation (and by its `TerminalWindowGuid`). If the docking step fails, the new
 terminal is still opened as a tab and the status bar says why.
+
+## Switch between terminals
+
+`Terminal.FocusNextPane` / `FocusPreviousPane` (Ctrl+. / Ctrl+,) cycle through the terminals currently on screen,
+sorted by screen position, so two split panes toggle. `Terminal.FocusNext` / `FocusPrevious` (Ctrl+Shift+. /
+Ctrl+Shift+,) cycle through every open terminal, hidden tabs included. All four are Terminal scope only, so
+Ctrl+, keeps opening Go To All and Ctrl+Shift+. / Ctrl+Shift+, keep switching document tabs everywhere else,
+exactly like the `terminalFocus` condition on the VS Code bindings.
 
 ## Close terminal
 

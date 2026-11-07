@@ -78,6 +78,40 @@
           <LocCanonicalName>.Terminal.Split</LocCanonicalName>
         </Strings>
       </Button>
+      <!-- Focus switching, mirroring the VS Code bindings: Ctrl+. / Ctrl+, cycle the terminals on screen (split
+           panes), Ctrl+Shift+. / Ctrl+Shift+, cycle every open terminal including hidden tabs. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNextPane" priority="0x0107" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Next Pane</ButtonText>
+          <CanonicalName>.Terminal.FocusNextPane</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusNextPane</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPreviousPane" priority="0x0108" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Previous Pane</ButtonText>
+          <CanonicalName>.Terminal.FocusPreviousPane</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusPreviousPane</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNext" priority="0x0109" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Next</ButtonText>
+          <CanonicalName>.Terminal.FocusNext</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusNext</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPrevious" priority="0x010A" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Previous</ButtonText>
+          <CanonicalName>.Terminal.FocusPrevious</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusPrevious</LocCanonicalName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -93,6 +127,10 @@
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalNew" editor="guidVSStd97" key1="VK_OEM_3" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalClose" editor="guidTerminalScope" key1="W" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSplit" editor="guidTerminalScope" key1="VK_OEM_5" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNextPane" editor="guidTerminalScope" key1="VK_OEM_PERIOD" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPreviousPane" editor="guidTerminalScope" key1="VK_OEM_COMMA" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNext" editor="guidTerminalScope" key1="VK_OEM_PERIOD" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPrevious" editor="guidTerminalScope" key1="VK_OEM_COMMA" mod1="Control Shift" />
   </KeyBindings>
 
   <Symbols>
@@ -107,6 +145,10 @@
       <IDSymbol name="cmdidTerminalNew" value="0x0104" />
       <IDSymbol name="cmdidTerminalClose" value="0x0105" />
       <IDSymbol name="cmdidTerminalSplit" value="0x0106" />
+      <IDSymbol name="cmdidTerminalFocusNextPane" value="0x0107" />
+      <IDSymbol name="cmdidTerminalFocusPreviousPane" value="0x0108" />
+      <IDSymbol name="cmdidTerminalFocusNext" value="0x0109" />
+      <IDSymbol name="cmdidTerminalFocusPrevious" value="0x010A" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

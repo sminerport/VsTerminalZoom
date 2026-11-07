@@ -36,6 +36,10 @@ namespace VsTerminalZoom
         public const int CmdIdNewTerminal = 0x0104;
         public const int CmdIdCloseTerminal = 0x0105;
         public const int CmdIdSplitTerminal = 0x0106;
+        public const int CmdIdFocusNextPane = 0x0107;
+        public const int CmdIdFocusPreviousPane = 0x0108;
+        public const int CmdIdFocusNext = 0x0109;
+        public const int CmdIdFocusPrevious = 0x010A;
 
         // stdidcmd.h: cmdidPaneCloseToolWindow in guidVSStd97, the command behind Window.CloseToolWindow (Shift+Esc).
         private const uint CmdIdPaneCloseToolWindow = 288;
@@ -69,6 +73,86 @@ namespace VsTerminalZoom
             commandService.AddCommand(new MenuCommand(OnNewTerminal, new CommandID(CommandSet, CmdIdNewTerminal)));
             commandService.AddCommand(new MenuCommand(OnCloseTerminal, new CommandID(CommandSet, CmdIdCloseTerminal)));
             commandService.AddCommand(new MenuCommand(OnSplitTerminal, new CommandID(CommandSet, CmdIdSplitTerminal)));
+            commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(+1, true, "Terminal.FocusNextPane"), new CommandID(CommandSet, CmdIdFocusNextPane)));
+            commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(-1, true, "Terminal.FocusPreviousPane"), new CommandID(CommandSet, CmdIdFocusPreviousPane)));
+            commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(+1, false, "Terminal.FocusNext"), new CommandID(CommandSet, CmdIdFocusNext)));
+            commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(-1, false, "Terminal.FocusPrevious"), new CommandID(CommandSet, CmdIdFocusPrevious)));
+        }
+
+        /// <summary>
+        /// Moves focus to the next or previous terminal. With <paramref name="visibleOnly"/> it cycles through the
+        /// terminals currently on screen in left-to-right, top-to-bottom order (VS Code's focusNextPane /
+        /// focusPreviousPane for split panes); otherwise through every open terminal, hidden tabs included
+        /// (VS Code's focusNext / focusPrevious).
+        /// </summary>
+        private void FocusTerminal(int step, bool visibleOnly, string commandName)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var selection = GetService(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+            var uiShell = GetService(typeof(SVsUIShell)) as IVsUIShell;
+            if (selection == null || uiShell == null)
+            {
+                ReportFailure(commandName + ": shell services unavailable.");
+                return;
+            }
+
+            var candidates = new List<KeyValuePair<IVsWindowFrame, ScreenPosition>>();
+            foreach (IVsWindowFrame frame in ToolWindowFrames(uiShell))
+            {
+                if (!IsTerminalFrame(frame))
+                {
+                    continue;
+                }
+
+                if (visibleOnly && !(ErrorHandler.Succeeded(frame.IsOnScreen(out int onScreen)) && onScreen != 0))
+                {
+                    continue;
+                }
+
+                candidates.Add(new KeyValuePair<IVsWindowFrame, ScreenPosition>(frame, FramePosition(frame)));
+            }
+
+            if (visibleOnly)
+            {
+                // Stable sort by screen position so side-by-side panes cycle left to right.
+                candidates.Sort((a, b) => a.Value.X != b.Value.X ? a.Value.X.CompareTo(b.Value.X) : a.Value.Y.CompareTo(b.Value.Y));
+            }
+
+            if (candidates.Count < 2)
+            {
+                ReportFailure(commandName + ": only one terminal " + (visibleOnly ? "visible" : "open") + ".");
+                return;
+            }
+
+            selection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object active);
+            object activePane = active is IVsWindowFrame activeFrame ? GetDocView(activeFrame) : null;
+            int current = candidates.FindIndex(c => activePane != null && ReferenceEquals(GetDocView(c.Key), activePane));
+            int target = current < 0 ? 0 : (((current + step) % candidates.Count) + candidates.Count) % candidates.Count;
+
+            Log.Write(commandName + ": " + candidates.Count + " candidates, current index " + current + ", showing index " + target);
+            int hr = candidates[target].Key.Show();
+            if (ErrorHandler.Failed(hr))
+            {
+                ReportFailure(commandName + ": Show failed (0x" + hr.ToString("X8") + ").");
+            }
+        }
+
+        private struct ScreenPosition
+        {
+            public int X;
+            public int Y;
+        }
+
+        private static ScreenPosition FramePosition(IVsWindowFrame frame)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var mode = new VSSETFRAMEPOS[1];
+            if (ErrorHandler.Succeeded(frame.GetFramePos(mode, out Guid _, out int x, out int y, out int _, out int _)))
+            {
+                return new ScreenPosition { X = x, Y = y };
+            }
+
+            return new ScreenPosition { X = int.MaxValue, Y = int.MaxValue };
         }
 
         private void OnSendShiftEnter(object sender, EventArgs e)
