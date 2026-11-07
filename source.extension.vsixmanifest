@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="VsTerminalZoom.sminerport.6f3b9a21-8c4d-4e07-9b5a-2d1e7c8f0a43" Version="1.3.0" Language="en-US" Publisher="Scott Miner" />
+    <DisplayName>Terminal Font Zoom</DisplayName>
+    <Description xml:space="preserve">Zoom the integrated terminal font with Ctrl+Alt+= / Ctrl+Alt+- and reset it with Ctrl+Alt+0 (the same keys as the VS Code terminal font zoom), make Shift+Enter send ESC CR so Claude Code inserts a newline instead of submitting, and open a new default-profile terminal with Ctrl+Shift+` (Terminal.New) and close the focused one with Ctrl+Shift+W (Terminal.Close). Font changes go to the Terminal entry in Tools > Options > Environment > Fonts and Colors.</Description>
+    <Tags>terminal, font, zoom, shift+enter, claude code</Tags>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,19.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+  </Assets>
+</PackageManifest>
