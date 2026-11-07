@@ -68,13 +68,23 @@
           <LocCanonicalName>.Terminal.Close</LocCanonicalName>
         </Strings>
       </Button>
+      <!-- Opens a new default-profile terminal and docks it to the right of the focused one
+           (VS Code: workbench.action.terminal.split, Ctrl+\). Docking uses VS internals; see FrameDocker.cs. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSplit" priority="0x0106" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal S&amp;plit (Side by Side)</ButtonText>
+          <CanonicalName>.Terminal.Split</CanonicalName>
+          <LocCanonicalName>.Terminal.Split</LocCanonicalName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
   <!-- Zoom, Shift+Enter and Close are scoped to the Terminal tool window (same scope Terminal.Copy / Terminal.Paste
        use), which mirrors VS Code's "when": "terminalFocus"; in that scope they win over Global bindings such as
        Ctrl+Shift+W = Window.CloseDocumentWindow. Terminal.New is Global (guidVSStd97), like VS Code's default
-       Ctrl+Shift+` binding, so it works from the editor too. VK_OEM_3 is the ` / ~ key on US layouts. -->
+       Ctrl+Shift+` binding, so it works from the editor too. VK_OEM_3 is the ` / ~ key and VK_OEM_5 the \ | key on US layouts. -->
   <KeyBindings>
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFontZoomIn" editor="guidTerminalScope" key1="VK_OEM_PLUS" mod1="Control Alt" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFontZoomOut" editor="guidTerminalScope" key1="VK_OEM_MINUS" mod1="Control Alt" />
@@ -82,6 +92,7 @@
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendShiftEnter" editor="guidTerminalScope" key1="VK_RETURN" mod1="Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalNew" editor="guidVSStd97" key1="VK_OEM_3" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalClose" editor="guidTerminalScope" key1="W" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSplit" editor="guidTerminalScope" key1="VK_OEM_5" mod1="Control" />
   </KeyBindings>
 
   <Symbols>
@@ -95,6 +106,7 @@
       <IDSymbol name="cmdidTerminalSendShiftEnter" value="0x0103" />
       <IDSymbol name="cmdidTerminalNew" value="0x0104" />
       <IDSymbol name="cmdidTerminalClose" value="0x0105" />
+      <IDSymbol name="cmdidTerminalSplit" value="0x0106" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

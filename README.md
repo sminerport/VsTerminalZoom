@@ -1,6 +1,6 @@
 # VsTerminalZoom
 
-Keyboard font zoom, a Shift+Enter newline and new/close-terminal keys for the Visual Studio 2026 integrated terminal, matching
+Keyboard font zoom, a Shift+Enter newline and new/close/split-terminal keys for the Visual Studio 2026 integrated terminal, matching
 the VS Code terminal bindings used in `keybindings.json`:
 
 | Key (terminal focused) | VS Code command                                   | Visual Studio command     |
@@ -11,6 +11,7 @@ the VS Code terminal bindings used in `keybindings.json`:
 | `Shift+Enter`          | `terminal.sendSequence` `"\u001b\r"` (`/terminal-setup`) | `Terminal.SendShiftEnter` |
 | `Ctrl+Shift+``         | `workbench.action.terminal.new`                   | `Terminal.New`            |
 | `Ctrl+Shift+W`         | `workbench.action.terminal.kill`                  | `Terminal.Close`          |
+| `Ctrl+\`               | `workbench.action.terminal.split`                 | `Terminal.Split`          |
 
 ## New terminal
 
@@ -20,6 +21,16 @@ Ctrl+Shift+`) calls the public `SVsTerminalService`: `GetDefaultProfileAsync` th
 contracts assembly `Microsoft.VisualStudio.Terminal.dll` is not on NuGet; the project references the installed
 copy (`$(VSAPPIDDIR)` from a Developer PowerShell, falling back to the Community install path).
 Windows Terminal gets the same key through a `Terminal.OpenNewTab` keybinding in its settings.json.
+
+## Split terminal (prototype)
+
+`Terminal.Split` (Terminal scope, Ctrl+\) opens a new default-profile terminal and docks it to the right of the
+focused one. Visual Studio has no public API for docking one tool window beside another (`IVsWindowFrame.SetFramePos`
+only moves and resizes), so `FrameDocker` reaches into the docking engine by reflection:
+`WindowFrame.FrameView` gives the layout `View`, and `DockOperations.Dock(target, docking, DockDirection.Right)` in
+`Microsoft.VisualStudio.Shell.ViewManager.dll` places it. The new terminal's frame is found by diffing the tool
+window list before and after creation (and by its `TerminalWindowGuid`). If the docking step fails, the new
+terminal is still opened as a tab and the status bar says why.
 
 ## Close terminal
 

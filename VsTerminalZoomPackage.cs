@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -16,8 +17,9 @@ namespace VsTerminalZoom
 {
     /// <summary>
     /// Adds Terminal.FontZoomIn / FontZoomOut / FontZoomReset (Ctrl+Alt+= / Ctrl+Alt+- / Ctrl+Alt+0 while the
-    /// Terminal tool window has focus), Terminal.SendShiftEnter (Shift+Enter there) and Terminal.New
-    /// (Ctrl+Shift+` anywhere). The package loads on first use of one of the commands; nothing runs at startup.
+    /// Terminal tool window has focus), Terminal.SendShiftEnter (Shift+Enter there), Terminal.Close (Ctrl+Shift+W
+    /// there), Terminal.Split (Ctrl+\ there) and Terminal.New (Ctrl+Shift+` anywhere). The package loads on first
+    /// use of one of the commands; nothing runs at startup.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
@@ -33,12 +35,15 @@ namespace VsTerminalZoom
         public const int CmdIdSendShiftEnter = 0x0103;
         public const int CmdIdNewTerminal = 0x0104;
         public const int CmdIdCloseTerminal = 0x0105;
+        public const int CmdIdSplitTerminal = 0x0106;
 
         // stdidcmd.h: cmdidPaneCloseToolWindow in guidVSStd97, the command behind Window.CloseToolWindow (Shift+Esc).
         private const uint CmdIdPaneCloseToolWindow = 288;
 
         // ESC CR: what VS Code's /terminal-setup binds Shift+Enter to, and what Claude Code reads as newline.
         private const string MetaEnter = "\u001b\r";
+
+        private const string TerminalPaneTypePrefix = "Microsoft.VisualStudio.Terminal.TerminalWindow";
 
         private TerminalFontZoom zoom;
         private TerminalInputSender inputSender;
@@ -63,6 +68,16 @@ namespace VsTerminalZoom
             commandService.AddCommand(new MenuCommand(OnSendShiftEnter, new CommandID(CommandSet, CmdIdSendShiftEnter)));
             commandService.AddCommand(new MenuCommand(OnNewTerminal, new CommandID(CommandSet, CmdIdNewTerminal)));
             commandService.AddCommand(new MenuCommand(OnCloseTerminal, new CommandID(CommandSet, CmdIdCloseTerminal)));
+            commandService.AddCommand(new MenuCommand(OnSplitTerminal, new CommandID(CommandSet, CmdIdSplitTerminal)));
+        }
+
+        private void OnSendShiftEnter(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!inputSender.TrySend(MetaEnter))
+            {
+                ReportFailure("Terminal.SendShiftEnter: " + (inputSender.LastFailure ?? "failed") + "; key ignored.");
+            }
         }
 
         /// <summary>
@@ -93,15 +108,6 @@ namespace VsTerminalZoom
             }
         }
 
-        private void OnSendShiftEnter(object sender, EventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (!inputSender.TrySend(MetaEnter))
-            {
-                ReportFailure("Terminal.SendShiftEnter: " + (inputSender.LastFailure ?? "failed") + "; key ignored.");
-            }
-        }
-
         /// <summary>
         /// Opens a new terminal with the default profile from Tools > Options > Environment > Terminal, the
         /// equivalent of VS Code's workbench.action.terminal.new. Visual Studio exposes no bindable command for
@@ -110,11 +116,27 @@ namespace VsTerminalZoom
         private void OnNewTerminal(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            RunCommand("Terminal.New", async ct => { await CreateTerminalAsync(ct); });
+        }
+
+        /// <summary>
+        /// Opens a new default-profile terminal and docks it to the right of the focused one, the equivalent
+        /// of VS Code's workbench.action.terminal.split. Docking goes through VS internals (see FrameDocker);
+        /// if that part fails the new terminal is still there as a tab and the status bar says why.
+        /// </summary>
+        private void OnSplitTerminal(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            RunCommand("Terminal.Split", SplitTerminalAsync);
+        }
+
+        private void RunCommand(string commandName, Func<CancellationToken, Task> body)
+        {
             JoinableTaskFactory.RunAsync(async () =>
             {
                 try
                 {
-                    await NewTerminalAsync(DisposalToken);
+                    await body(DisposalToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -122,12 +144,12 @@ namespace VsTerminalZoom
                 catch (Exception ex)
                 {
                     await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
-                    ReportFailure("Terminal.New: " + ex.Message);
+                    ReportFailure(commandName + ": " + ex.GetBaseException().Message);
                 }
-            }).FileAndForget("vsterminalzoom/newterminal");
+            }).FileAndForget("vsterminalzoom/" + commandName.ToLowerInvariant());
         }
 
-        private async Task NewTerminalAsync(CancellationToken cancellationToken)
+        private async System.Threading.Tasks.Task<Guid> CreateTerminalAsync(CancellationToken cancellationToken)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
@@ -146,6 +168,121 @@ namespace VsTerminalZoom
             };
             Guid id = await terminals.CreateTerminalWindowAsync(cancellationToken, options);
             await terminals.ShowAsync(id, cancellationToken);
+            return id;
+        }
+
+        private async Task SplitTerminalAsync(CancellationToken cancellationToken)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            var selection = await GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+            var uiShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+            Assumes.Present(selection);
+            Assumes.Present(uiShell);
+
+            ErrorHandler.ThrowOnFailure(selection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object active));
+            var targetFrame = active as IVsWindowFrame;
+            if (targetFrame == null || !IsTerminalFrame(targetFrame))
+            {
+                ReportFailure("Terminal.Split: the active window is not a terminal; nothing opened.");
+                return;
+            }
+
+            var existingPanes = new HashSet<object>();
+            foreach (IVsWindowFrame frame in ToolWindowFrames(uiShell))
+            {
+                object pane = GetDocView(frame);
+                if (pane != null)
+                {
+                    existingPanes.Add(pane);
+                }
+            }
+
+            Guid id = await CreateTerminalAsync(cancellationToken);
+
+            IVsWindowFrame newFrame = null;
+            for (int attempt = 0; attempt < 30 && newFrame == null; attempt++)
+            {
+                newFrame = FindNewTerminalFrame(uiShell, existingPanes, id);
+                if (newFrame == null)
+                {
+                    await Task.Delay(100, cancellationToken);
+                    await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+                }
+            }
+
+            if (newFrame == null)
+            {
+                ReportFailure("Terminal.Split: new terminal opened, but its window was not found; left as a tab.");
+                return;
+            }
+
+            try
+            {
+                FrameDocker.DockBeside(targetFrame, newFrame, right: true);
+                newFrame.Show();
+            }
+            catch (Exception ex)
+            {
+                newFrame.Show();
+                ReportFailure("Terminal.Split: new terminal opened as a tab; docking beside the current one failed: " + ex.GetBaseException().Message);
+            }
+        }
+
+        private static IEnumerable<IVsWindowFrame> ToolWindowFrames(IVsUIShell uiShell)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (ErrorHandler.Failed(uiShell.GetToolWindowEnum(out IEnumWindowFrames frames)) || frames == null)
+            {
+                yield break;
+            }
+
+            var buffer = new IVsWindowFrame[1];
+            while (frames.Next(1, buffer, out uint fetched) == VSConstants.S_OK && fetched == 1)
+            {
+                yield return buffer[0];
+            }
+        }
+
+        private static object GetDocView(IVsWindowFrame frame)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            return ErrorHandler.Succeeded(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out object view)) ? view : null;
+        }
+
+        private static bool IsTerminalFrame(IVsWindowFrame frame)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            string typeName = GetDocView(frame)?.GetType().FullName;
+            return typeName != null && typeName.StartsWith(TerminalPaneTypePrefix, StringComparison.Ordinal);
+        }
+
+        private static IVsWindowFrame FindNewTerminalFrame(IVsUIShell uiShell, HashSet<object> existingPanes, Guid terminalId)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            IVsWindowFrame onlyNew = null;
+            int newCount = 0;
+            foreach (IVsWindowFrame frame in ToolWindowFrames(uiShell))
+            {
+                object pane = GetDocView(frame);
+                if (pane == null || existingPanes.Contains(pane) || !IsTerminalFrame(frame))
+                {
+                    continue;
+                }
+
+                // TerminalWindowBase keeps the terminal's guid in a non-public TerminalWindowGuid property.
+                object guidValue = pane.GetType().GetProperty("TerminalWindowGuid",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)?.GetValue(pane);
+                if (guidValue != null && Guid.TryParse(guidValue.ToString(), out Guid paneId) && paneId == terminalId)
+                {
+                    return frame;
+                }
+
+                onlyNew = frame;
+                newCount++;
+            }
+
+            return newCount == 1 ? onlyNew : null;
         }
 
         private void ReportFailure(string message)
