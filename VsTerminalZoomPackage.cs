@@ -182,6 +182,7 @@ namespace VsTerminalZoom
 
             ErrorHandler.ThrowOnFailure(selection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object active));
             var targetFrame = active as IVsWindowFrame;
+            Log.Write("split: active frame " + DescribeFrame(targetFrame));
             if (targetFrame == null || !IsTerminalFrame(targetFrame))
             {
                 ReportFailure("Terminal.Split: the active window is not a terminal; nothing opened.");
@@ -198,11 +199,15 @@ namespace VsTerminalZoom
                 }
             }
 
+            Log.Write("split: " + existingPanes.Count + " tool window panes before creation");
             Guid id = await CreateTerminalAsync(cancellationToken);
+            Log.Write("split: created terminal " + id);
 
             IVsWindowFrame newFrame = null;
-            for (int attempt = 0; attempt < 30 && newFrame == null; attempt++)
+            int attempts = 0;
+            while (newFrame == null && attempts < 30)
             {
+                attempts++;
                 newFrame = FindNewTerminalFrame(uiShell, existingPanes, id);
                 if (newFrame == null)
                 {
@@ -213,17 +218,23 @@ namespace VsTerminalZoom
 
             if (newFrame == null)
             {
-                ReportFailure("Terminal.Split: new terminal opened, but its window was not found; left as a tab.");
+                ReportFailure("Terminal.Split: new terminal opened, but its window was not found after " + attempts + " tries; left as a tab.");
                 return;
             }
 
+            Log.Write("split: new frame " + DescribeFrame(newFrame) + " found on attempt " + attempts);
             try
             {
-                FrameDocker.DockBeside(targetFrame, newFrame, right: true);
-                newFrame.Show();
+                string how = FrameDocker.DockBeside(targetFrame, newFrame, right: true);
+                Log.Write("split: " + how);
+                if (GetService(typeof(SVsStatusbar)) is IVsStatusbar statusbar)
+                {
+                    statusbar.SetText("Terminal.Split: " + how + ".");
+                }
             }
             catch (Exception ex)
             {
+                Log.Write("split: docking failed: " + ex);
                 newFrame.Show();
                 ReportFailure("Terminal.Split: new terminal opened as a tab; docking beside the current one failed: " + ex.GetBaseException().Message);
             }
@@ -242,6 +253,18 @@ namespace VsTerminalZoom
             {
                 yield return buffer[0];
             }
+        }
+
+        private static string DescribeFrame(IVsWindowFrame frame)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (frame == null)
+            {
+                return "(null)";
+            }
+
+            string caption = ErrorHandler.Succeeded(frame.GetProperty((int)__VSFPROPID.VSFPROPID_Caption, out object value)) ? value as string : null;
+            return frame.GetType().FullName + " '" + caption + "' pane=" + (GetDocView(frame)?.GetType().FullName ?? "(none)");
         }
 
         private static object GetDocView(IVsWindowFrame frame)
@@ -288,6 +311,7 @@ namespace VsTerminalZoom
         private void ReportFailure(string message)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            Log.Write(message);
             ActivityLog.LogWarning(nameof(VsTerminalZoom), message);
             if (GetService(typeof(SVsStatusbar)) is IVsStatusbar statusbar)
             {

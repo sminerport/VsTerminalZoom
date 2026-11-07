@@ -69,6 +69,12 @@ The bindings use the Terminal key scope, so they only fire while the terminal ha
 under Tools > Options > Environment > Keyboard (search `Terminal.FontZoom`). The commands also appear
 at the bottom of the Tools menu.
 
+## Troubleshooting
+
+Every command writes what it did to `%LOCALAPPDATA%\VsTerminalZoom\VsTerminalZoom.log` (one line per step, with the
+docking engine's view and group types for `Terminal.Split`). Failures also go to the status bar and, when Visual
+Studio runs with `/log`, to its ActivityLog.
+
 ## Build
 
 Requires the "Visual Studio extension development" workload. From a Developer PowerShell:
