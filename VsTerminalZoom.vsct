@@ -112,6 +112,62 @@
           <LocCanonicalName>.Terminal.FocusPrevious</LocCanonicalName>
         </Strings>
       </Button>
+      <!-- Scrollback from the keyboard, mirroring Windows Terminal: Ctrl+Shift+Up/Down one line, Ctrl+Shift+PgUp/PgDn
+           one screen, Ctrl+Shift+Home/End to the ends. With no scrollback (alternate-screen programs) the key is passed through. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineUp" priority="0x010B" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Line Up</ButtonText>
+          <CanonicalName>.Terminal.ScrollLineUp</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollLineUp</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineDown" priority="0x010C" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Line Down</ButtonText>
+          <CanonicalName>.Terminal.ScrollLineDown</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollLineDown</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageUp" priority="0x010D" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Page Up</ButtonText>
+          <CanonicalName>.Terminal.ScrollPageUp</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollPageUp</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageDown" priority="0x010E" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Page Down</ButtonText>
+          <CanonicalName>.Terminal.ScrollPageDown</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollPageDown</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToTop" priority="0x010F" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll To Top</ButtonText>
+          <CanonicalName>.Terminal.ScrollToTop</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollToTop</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToBottom" priority="0x0110" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll To Bottom</ButtonText>
+          <CanonicalName>.Terminal.ScrollToBottom</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollToBottom</LocCanonicalName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -131,6 +187,12 @@
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPreviousPane" editor="guidTerminalScope" key1="VK_OEM_COMMA" mod1="Control" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNext" editor="guidTerminalScope" key1="VK_OEM_PERIOD" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPrevious" editor="guidTerminalScope" key1="VK_OEM_COMMA" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineUp" editor="guidTerminalScope" key1="VK_UP" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineDown" editor="guidTerminalScope" key1="VK_DOWN" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageUp" editor="guidTerminalScope" key1="VK_PRIOR" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageDown" editor="guidTerminalScope" key1="VK_NEXT" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToTop" editor="guidTerminalScope" key1="VK_HOME" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToBottom" editor="guidTerminalScope" key1="VK_END" mod1="Control Shift" />
   </KeyBindings>
 
   <Symbols>
@@ -149,6 +211,12 @@
       <IDSymbol name="cmdidTerminalFocusPreviousPane" value="0x0108" />
       <IDSymbol name="cmdidTerminalFocusNext" value="0x0109" />
       <IDSymbol name="cmdidTerminalFocusPrevious" value="0x010A" />
+      <IDSymbol name="cmdidTerminalScrollLineUp" value="0x010B" />
+      <IDSymbol name="cmdidTerminalScrollLineDown" value="0x010C" />
+      <IDSymbol name="cmdidTerminalScrollPageUp" value="0x010D" />
+      <IDSymbol name="cmdidTerminalScrollPageDown" value="0x010E" />
+      <IDSymbol name="cmdidTerminalScrollToTop" value="0x010F" />
+      <IDSymbol name="cmdidTerminalScrollToBottom" value="0x0110" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

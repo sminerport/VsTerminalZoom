@@ -1,6 +1,6 @@
 # VsTerminalZoom
 
-Keyboard font zoom, a Shift+Enter newline and new/close/split-terminal keys for the Visual Studio 2026 integrated terminal, matching
+Keyboard font zoom, a Shift+Enter newline and new/close/split-terminal, focus and scrollback keys for the Visual Studio 2026 integrated terminal, matching
 the VS Code terminal bindings used in `keybindings.json`:
 
 | Key (terminal focused) | VS Code command                                   | Visual Studio command     |
@@ -14,6 +14,9 @@ the VS Code terminal bindings used in `keybindings.json`:
 | `Ctrl+\`               | `workbench.action.terminal.split`                 | `Terminal.Split`          |
 | `Ctrl+.` / `Ctrl+,`    | `terminal.focusNextPane` / `focusPreviousPane`    | `Terminal.FocusNextPane` / `FocusPreviousPane` |
 | `Ctrl+Shift+.` / `Ctrl+Shift+,` | `terminal.focusNext` / `focusPrevious`   | `Terminal.FocusNext` / `FocusPrevious` |
+| `Ctrl+Shift+Up` / `Down` | `terminal.scrollUp` / `scrollDown` (Ctrl+Alt+PgUp/PgDn by default) | `Terminal.ScrollLineUp` / `ScrollLineDown` |
+| `Ctrl+Shift+PgUp` / `PgDn` | `terminal.scrollUpPage` / `scrollDownPage` (Shift+PgUp/PgDn by default) | `Terminal.ScrollPageUp` / `ScrollPageDown` |
+| `Ctrl+Shift+Home` / `End` | `terminal.scrollToTop` / `scrollToBottom`         | `Terminal.ScrollToTop` / `ScrollToBottom` |
 
 ## New terminal
 
@@ -41,6 +44,16 @@ sorted by screen position, so two split panes toggle. `Terminal.FocusNext` / `Fo
 Ctrl+Shift+,) cycle through every open terminal, hidden tabs included. All four are Terminal scope only, so
 Ctrl+, keeps opening Go To All and Ctrl+Shift+. / Ctrl+Shift+, keep switching document tabs everywhere else,
 exactly like the `terminalFocus` condition on the VS Code bindings.
+
+## Scroll the scrollback
+
+Visual Studio's terminal only scrolls with the mouse wheel. `Terminal.ScrollLineUp` / `ScrollLineDown`
+(Ctrl+Shift+Up / Down), `ScrollPageUp` / `ScrollPageDown` (Ctrl+Shift+PgUp / PgDn) and `ScrollToTop` /
+`ScrollToBottom` (Ctrl+Shift+Home / End) add Windows Terminal's keys. They drive the Windows Terminal control's
+own scroll bar and its `TerminalContainer.UserScroll(viewTop)`, the path the scroll bar's thumb uses. When the
+terminal has no scrollback, which is what alternate-screen programs such as Claude Code's fullscreen renderer
+or vim present, the key's xterm sequence (`ESC [1;6A` and friends) is written to the program instead, so the same
+keys scroll Claude Code's own viewport there.
 
 ## Close terminal
 

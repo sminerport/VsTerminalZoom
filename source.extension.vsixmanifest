@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="VsTerminalZoom.sminerport.6f3b9a21-8c4d-4e07-9b5a-2d1e7c8f0a43" Version="1.5.0" Language="en-US" Publisher="Scott Miner" />
+    <Identity Id="VsTerminalZoom.sminerport.6f3b9a21-8c4d-4e07-9b5a-2d1e7c8f0a43" Version="1.6.0" Language="en-US" Publisher="Scott Miner" />
     <DisplayName>Terminal Font Zoom</DisplayName>
-    <Description xml:space="preserve">Zoom the integrated terminal font with Ctrl+Alt+= / Ctrl+Alt+- and reset it with Ctrl+Alt+0 (the same keys as the VS Code terminal font zoom), make Shift+Enter send ESC CR so Claude Code inserts a newline instead of submitting, and open a new default-profile terminal with Ctrl+Shift+` (Terminal.New) close the focused one with Ctrl+Shift+W (Terminal.Close), split it side by side with Ctrl+\ (Terminal.Split), and move between terminals with Ctrl+. / Ctrl+, (panes) and Ctrl+Shift+. / Ctrl+Shift+, (tabs). Font changes go to the Terminal entry in Tools > Options > Environment > Fonts and Colors.</Description>
+    <Description xml:space="preserve">Zoom the integrated terminal font with Ctrl+Alt+= / Ctrl+Alt+- and reset it with Ctrl+Alt+0 (the same keys as the VS Code terminal font zoom), make Shift+Enter send ESC CR so Claude Code inserts a newline instead of submitting, and open a new default-profile terminal with Ctrl+Shift+` (Terminal.New) close the focused one with Ctrl+Shift+W (Terminal.Close), split it side by side with Ctrl+\ (Terminal.Split), move between terminals with Ctrl+. / Ctrl+, (panes) and Ctrl+Shift+. / Ctrl+Shift+, (tabs), and scroll the scrollback with Ctrl+Shift+Up/Down, PgUp/PgDn and Home/End. Font changes go to the Terminal entry in Tools > Options > Environment > Fonts and Colors.</Description>
     <Tags>terminal, font, zoom, shift+enter, claude code</Tags>
   </Metadata>
   <Installation>

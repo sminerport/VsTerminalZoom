@@ -53,6 +53,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="TerminalFontZoom.cs" />
     <Compile Include="TerminalInputSender.cs" />
+    <Compile Include="TerminalScroller.cs" />
     <Compile Include="VsTerminalZoomPackage.cs" />
   </ItemGroup>
   <ItemGroup>

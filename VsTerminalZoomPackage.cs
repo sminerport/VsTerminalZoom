@@ -40,6 +40,12 @@ namespace VsTerminalZoom
         public const int CmdIdFocusPreviousPane = 0x0108;
         public const int CmdIdFocusNext = 0x0109;
         public const int CmdIdFocusPrevious = 0x010A;
+        public const int CmdIdScrollLineUp = 0x010B;
+        public const int CmdIdScrollLineDown = 0x010C;
+        public const int CmdIdScrollPageUp = 0x010D;
+        public const int CmdIdScrollPageDown = 0x010E;
+        public const int CmdIdScrollToTop = 0x010F;
+        public const int CmdIdScrollToBottom = 0x0110;
 
         // stdidcmd.h: cmdidPaneCloseToolWindow in guidVSStd97, the command behind Window.CloseToolWindow (Shift+Esc).
         private const uint CmdIdPaneCloseToolWindow = 288;
@@ -77,6 +83,33 @@ namespace VsTerminalZoom
             commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(-1, true, "Terminal.FocusPreviousPane"), new CommandID(CommandSet, CmdIdFocusPreviousPane)));
             commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(+1, false, "Terminal.FocusNext"), new CommandID(CommandSet, CmdIdFocusNext)));
             commandService.AddCommand(new MenuCommand((s, e) => FocusTerminal(-1, false, "Terminal.FocusPrevious"), new CommandID(CommandSet, CmdIdFocusPrevious)));
+
+            // Scrollback keys mirror Windows Terminal's defaults. The passthrough sequences are the xterm encodings of
+            // the bound keys (modifier 6 = Ctrl+Shift), sent to the program when the terminal has no scrollback.
+            commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Line, -1, "\u001b[1;6A", "Terminal.ScrollLineUp"), new CommandID(CommandSet, CmdIdScrollLineUp)));
+            commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Line, +1, "\u001b[1;6B", "Terminal.ScrollLineDown"), new CommandID(CommandSet, CmdIdScrollLineDown)));
+            commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Page, -1, "\u001b[5;6~", "Terminal.ScrollPageUp"), new CommandID(CommandSet, CmdIdScrollPageUp)));
+            commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Page, +1, "\u001b[6;6~", "Terminal.ScrollPageDown"), new CommandID(CommandSet, CmdIdScrollPageDown)));
+            commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Edge, -1, "\u001b[1;6H", "Terminal.ScrollToTop"), new CommandID(CommandSet, CmdIdScrollToTop)));
+            commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Edge, +1, "\u001b[1;6F", "Terminal.ScrollToBottom"), new CommandID(CommandSet, CmdIdScrollToBottom)));
+        }
+
+        /// <summary>
+        /// Scrolls the focused terminal's scrollback (line, page, or to an edge), like Windows Terminal's
+        /// Ctrl+Shift+Up/Down, PgUp/PgDn and Home/End. When the terminal has no scrollback, the key is passed to the
+        /// program instead so fullscreen programs can scroll themselves.
+        /// </summary>
+        private void ScrollTerminal(ScrollStep step, int direction, string passthroughSequence, string commandName)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                Log.Write(commandName + ": " + TerminalScroller.Scroll(step, direction, passthroughSequence));
+            }
+            catch (Exception ex)
+            {
+                ReportFailure(commandName + ": " + ex.GetBaseException().Message);
+            }
         }
 
         /// <summary>
