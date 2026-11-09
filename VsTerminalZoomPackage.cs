@@ -449,7 +449,8 @@ namespace VsTerminalZoom
             }
             catch (Exception ex)
             {
-                Log.Write("split: could not read TerminalWindowGuid: " + ex.GetBaseException().Message);
+                Exception inner = ex.GetBaseException();
+                Log.Write("split: could not read TerminalWindowGuid: " + inner.GetType().Name + ": " + inner.Message);
                 return false;
             }
         }
