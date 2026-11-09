@@ -47,6 +47,11 @@ namespace VsTerminalZoom
         public const int CmdIdScrollToTop = 0x010F;
         public const int CmdIdScrollToBottom = 0x0110;
 
+        // Terminal.SendCtrl<letter> commands: ids CmdIdFirstPassthrough + index into PassthroughLetters. The order
+        // must match the cmdidTerminalSendCtrl* symbols in VsTerminalZoom.vsct.
+        public const int CmdIdFirstPassthrough = 0x0111;
+        private const string PassthroughLetters = "EFGKNOPRSTWY";
+
         // stdidcmd.h: cmdidPaneCloseToolWindow in guidVSStd97, the command behind Window.CloseToolWindow (Shift+Esc).
         private const uint CmdIdPaneCloseToolWindow = 288;
 
@@ -97,6 +102,28 @@ namespace VsTerminalZoom
             commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Page, +1, "\u001b[6;6~", "Terminal.ScrollPageDown"), new CommandID(CommandSet, CmdIdScrollPageDown)));
             commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Edge, -1, "\u001b[1;6H", "Terminal.ScrollToTop"), new CommandID(CommandSet, CmdIdScrollToTop)));
             commandService.AddCommand(new MenuCommand((s, e) => ScrollTerminal(ScrollStep.Edge, +1, "\u001b[1;6F", "Terminal.ScrollToBottom"), new CommandID(CommandSet, CmdIdScrollToBottom)));
+
+            // Ctrl+letter keys that Visual Studio binds globally (Ctrl+R is a chord prefix, Ctrl+S saves, Ctrl+T is
+            // Go To All, ...) never reach the program in the terminal. These Terminal-scope commands take the key back
+            // and write its control character to the pty, so shells and Claude Code see it as if typed.
+            for (int i = 0; i < PassthroughLetters.Length; i++)
+            {
+                char letter = PassthroughLetters[i];
+                string controlCharacter = ((char)(letter & 0x1F)).ToString();
+                string commandName = "Terminal.SendCtrl" + letter;
+                commandService.AddCommand(new MenuCommand(
+                    (s, e) => SendControlKey(controlCharacter, commandName),
+                    new CommandID(CommandSet, CmdIdFirstPassthrough + i)));
+            }
+        }
+
+        private void SendControlKey(string controlCharacter, string commandName)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!inputSender.TrySend(controlCharacter))
+            {
+                ReportFailure(commandName + ": " + (inputSender.LastFailure ?? "failed") + "; key ignored.");
+            }
         }
 
         /// <summary>
