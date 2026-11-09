@@ -42,7 +42,7 @@ namespace VsTerminalZoom
             MethodInfo dockOutside = dockOperations.GetMethod("DockOutside", PublicStatic, null, new[] { viewGroup, viewElement, dockDirection }, null);
             MethodInfo isDockingViewValid = dockOperations.GetMethod("IsDockingViewValid", PublicStatic, null, new[] { viewElement }, null);
             MethodInfo detach = viewElement.GetMethod("Detach", PublicInstance, null, Type.EmptyTypes, null);
-            MethodInfo showInFront = targetView.GetType().GetMethod("ShowInFront", PublicInstance, null, Type.EmptyTypes, null);
+            MethodInfo showInFront = dockingView.GetType().GetMethod("ShowInFront", PublicInstance, null, Type.EmptyTypes, null);
 
             object targetParent = parentProperty.GetValue(targetView);
             Log.Write("dock: target " + Describe(targetView) + " in " + Describe(targetParent)
