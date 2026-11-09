@@ -239,12 +239,113 @@ namespace VsTerminalZoom
         /// <summary>
         /// Opens a new terminal with the default profile from Tools > Options > Environment > Terminal, the
         /// equivalent of VS Code's workbench.action.terminal.new. Visual Studio exposes no bindable command for
-        /// the Terminal window's "+" button, so this goes through the public SVsTerminalService.
+        /// the Terminal window's "+" button, so this goes through the public SVsTerminalService. The new terminal
+        /// is then made a tab in the pane of the focused terminal (or of one already on screen): left alone,
+        /// Visual Studio opens it wherever the last terminal was docked, which after a Terminal.Split means beside
+        /// the others instead of as a tab.
         /// </summary>
         private void OnNewTerminal(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            RunCommand("Terminal.New", async ct => { await CreateTerminalAsync(ct); });
+            RunCommand("Terminal.New", NewTerminalAsync);
+        }
+
+        private async Task NewTerminalAsync(CancellationToken cancellationToken)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            var selection = await GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+            var uiShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+            Assumes.Present(selection);
+            Assumes.Present(uiShell);
+
+            IVsWindowFrame targetFrame = FindTabTarget(selection, uiShell);
+            Log.Write("new: tab target " + DescribeFrame(targetFrame));
+            HashSet<object> existingPanes = SnapshotPanes(uiShell);
+
+            Guid id = await CreateTerminalAsync(cancellationToken);
+            if (targetFrame == null)
+            {
+                // First terminal: nothing to tab with, Visual Studio's own placement stands.
+                return;
+            }
+
+            IVsWindowFrame newFrame = await WaitForNewTerminalFrameAsync(uiShell, existingPanes, id, cancellationToken);
+            if (newFrame == null)
+            {
+                ReportFailure("Terminal.New: new terminal opened, but its window was not found; left where Visual Studio put it.");
+                return;
+            }
+
+            try
+            {
+                Log.Write("new: " + FrameDocker.DockAsTab(targetFrame, newFrame));
+            }
+            catch (Exception ex)
+            {
+                Log.Write("new: tabbing failed: " + ex);
+                newFrame.Show();
+                ReportFailure("Terminal.New: new terminal opened, but could not be placed as a tab: " + ex.GetBaseException().Message);
+            }
+        }
+
+        /// <summary>The terminal whose pane a new terminal should join: the focused one, else one on screen.</summary>
+        private static IVsWindowFrame FindTabTarget(IVsMonitorSelection selection, IVsUIShell uiShell)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (ErrorHandler.Succeeded(selection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object active))
+                && active is IVsWindowFrame activeFrame
+                && IsTerminalFrame(activeFrame))
+            {
+                return activeFrame;
+            }
+
+            foreach (IVsWindowFrame frame in ToolWindowFrames(uiShell))
+            {
+                if (IsTerminalFrame(frame) && ErrorHandler.Succeeded(frame.IsOnScreen(out int onScreen)) && onScreen != 0)
+                {
+                    return frame;
+                }
+            }
+
+            return null;
+        }
+
+        private static HashSet<object> SnapshotPanes(IVsUIShell uiShell)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var panes = new HashSet<object>();
+            foreach (IVsWindowFrame frame in ToolWindowFrames(uiShell))
+            {
+                object pane = GetDocView(frame);
+                if (pane != null)
+                {
+                    panes.Add(pane);
+                }
+            }
+
+            return panes;
+        }
+
+        /// <summary>Polls the shell's tool window list for the frame of the terminal that was just created.</summary>
+        private async System.Threading.Tasks.Task<IVsWindowFrame> WaitForNewTerminalFrameAsync(
+            IVsUIShell uiShell, HashSet<object> existingPanes, Guid terminalId, CancellationToken cancellationToken)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            for (int attempt = 1; attempt <= NewFrameLookupAttempts; attempt++)
+            {
+                IVsWindowFrame frame = FindNewTerminalFrame(uiShell, existingPanes, terminalId);
+                if (frame != null)
+                {
+                    Log.Write("new frame " + DescribeFrame(frame) + " found on attempt " + attempt);
+                    return frame;
+                }
+
+                await Task.Delay(NewFrameLookupDelay, cancellationToken);
+                await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -317,40 +418,18 @@ namespace VsTerminalZoom
                 return;
             }
 
-            var existingPanes = new HashSet<object>();
-            foreach (IVsWindowFrame frame in ToolWindowFrames(uiShell))
-            {
-                object pane = GetDocView(frame);
-                if (pane != null)
-                {
-                    existingPanes.Add(pane);
-                }
-            }
-
+            HashSet<object> existingPanes = SnapshotPanes(uiShell);
             Log.Write("split: " + existingPanes.Count + " tool window panes before creation");
             Guid id = await CreateTerminalAsync(cancellationToken);
             Log.Write("split: created terminal " + id);
 
-            IVsWindowFrame newFrame = null;
-            int attempts = 0;
-            while (newFrame == null && attempts < NewFrameLookupAttempts)
-            {
-                attempts++;
-                newFrame = FindNewTerminalFrame(uiShell, existingPanes, id);
-                if (newFrame == null)
-                {
-                    await Task.Delay(NewFrameLookupDelay, cancellationToken);
-                    await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-                }
-            }
-
+            IVsWindowFrame newFrame = await WaitForNewTerminalFrameAsync(uiShell, existingPanes, id, cancellationToken);
             if (newFrame == null)
             {
-                ReportFailure("Terminal.Split: new terminal opened, but its window was not found after " + attempts + " tries; left as a tab.");
+                ReportFailure("Terminal.Split: new terminal opened, but its window was not found; left where Visual Studio put it.");
                 return;
             }
 
-            Log.Write("split: new frame " + DescribeFrame(newFrame) + " found on attempt " + attempts);
             try
             {
                 string how = FrameDocker.DockBeside(targetFrame, newFrame, right: true);

@@ -22,7 +22,9 @@ the VS Code terminal bindings used in `keybindings.json`:
 
 Visual Studio has no bindable command behind the Terminal window's "+" button, so `Terminal.New` (Global scope,
 Ctrl+Shift+`) calls the public `SVsTerminalService`: `GetDefaultProfileAsync` then `CreateTerminalAsync` and
-`ShowAsync`. The default profile is the one marked default in Tools > Options > Environment > Terminal. The
+`ShowAsync`. The new terminal is then tabbed into the focused terminal's pane (or one already on screen) with
+`DockOperations.Dock(target, new, DockDirection.Fill)`: left alone, Visual Studio opens a new terminal wherever
+the last one was docked, which after a `Terminal.Split` means beside the others instead of as a tab. The default profile is the one marked default in Tools > Options > Environment > Terminal. The
 contracts assembly `Microsoft.VisualStudio.Terminal.dll` is not on NuGet; the project references the installed
 copy (`$(VSAPPIDDIR)` from a Developer PowerShell, falling back to the Community install path).
 Windows Terminal gets the same key through a `Terminal.OpenNewTab` keybinding in its settings.json.
