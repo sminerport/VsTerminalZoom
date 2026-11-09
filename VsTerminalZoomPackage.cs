@@ -421,10 +421,7 @@ namespace VsTerminalZoom
                     continue;
                 }
 
-                // TerminalWindowBase keeps the terminal's guid in a non-public TerminalWindowGuid property.
-                object guidValue = pane.GetType().GetProperty("TerminalWindowGuid",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)?.GetValue(pane);
-                if (guidValue != null && Guid.TryParse(guidValue.ToString(), out Guid paneId) && paneId == terminalId)
+                if (TryReadTerminalGuid(pane, out Guid paneId) && paneId == terminalId)
                 {
                     return frame;
                 }
@@ -434,6 +431,27 @@ namespace VsTerminalZoom
             }
 
             return newCount == 1 ? onlyNew : null;
+        }
+
+        /// <summary>
+        /// TerminalWindowBase keeps the terminal's guid in a non-public TerminalWindowGuid property. It is an
+        /// implementation detail that may change or throw between Visual Studio builds, so a failed read just
+        /// means "unknown" and the caller falls back to the only-new-frame rule.
+        /// </summary>
+        private static bool TryReadTerminalGuid(object pane, out Guid terminalId)
+        {
+            terminalId = Guid.Empty;
+            try
+            {
+                object value = pane.GetType().GetProperty("TerminalWindowGuid",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)?.GetValue(pane);
+                return value != null && Guid.TryParse(value.ToString(), out terminalId);
+            }
+            catch (Exception ex)
+            {
+                Log.Write("split: could not read TerminalWindowGuid: " + ex.GetBaseException().Message);
+                return false;
+            }
         }
 
         private void ReportFailure(string message)
