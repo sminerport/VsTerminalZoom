@@ -17,7 +17,7 @@ the VS Code terminal bindings used in `keybindings.json`:
 | `Ctrl+Shift+Up` / `Down` | `terminal.scrollUp` / `scrollDown` (Ctrl+Alt+PgUp/PgDn by default) | `Terminal.ScrollLineUp` / `ScrollLineDown` |
 | `Ctrl+Shift+PgUp` / `PgDn` | `terminal.scrollUpPage` / `scrollDownPage` (Shift+PgUp/PgDn by default) | `Terminal.ScrollPageUp` / `ScrollPageDown` |
 | `Ctrl+Shift+Home` / `End` | `terminal.scrollToTop` / `scrollToBottom`         | `Terminal.ScrollToTop` / `ScrollToBottom` |
-| `Ctrl+R`, `S`, `T`, `F`, `O`, `G`, `E`, `K`, `N`, `P`, `W`, `Y` | sent to the shell by default | `Terminal.SendCtrl<letter>` |
+| `Ctrl+E`, `Ctrl+F`, `Ctrl+G`, `Ctrl+K`, `Ctrl+N`, `Ctrl+O`, `Ctrl+P`, `Ctrl+R`, `Ctrl+S`, `Ctrl+T`, `Ctrl+W`, `Ctrl+Y` | sent to the shell by default | `Terminal.SendCtrl<letter>` |
 
 ## New terminal
 
@@ -68,11 +68,12 @@ Ctrl+R is a chord prefix, Ctrl+S saves, Ctrl+T opens Go To All, Ctrl+F opens Fin
 program in the terminal never sees them, so PSReadLine's history search, Claude Code's `Ctrl+R` rename in
 `claude agents`, `Ctrl+O` transcript and `Ctrl+T` task list all appear dead.
 
-`Terminal.SendCtrlE`, `F`, `G`, `K`, `N`, `O`, `P`, `R`, `S`, `T`, `W` and `Y` are bound to those keys in the
-Terminal scope, where they beat the Global bindings, and write the key's control character (Ctrl+R is 0x12) to
-the pty through the same `WriteInput` path as `Terminal.SendShiftEnter`. Outside the terminal the keys keep
-their Visual Studio meaning. To give one back to Visual Studio inside the terminal, remove its shortcut under
-Tools > Options > Environment > Keyboard (search `Terminal.SendCtrl`).
+There is one `Terminal.SendCtrl<letter>` command for each of Ctrl+E, Ctrl+F, Ctrl+G, Ctrl+K, Ctrl+N, Ctrl+O,
+Ctrl+P, Ctrl+R, Ctrl+S, Ctrl+T, Ctrl+W and Ctrl+Y. Each is bound to its key in the Terminal scope, where it
+beats the Global binding, and writes the key's control character (Ctrl+R is 0x12) to the pty through the same
+`WriteInput` path as `Terminal.SendShiftEnter`. Outside the terminal the keys keep their Visual Studio meaning.
+To give one back to Visual Studio inside the terminal, remove its shortcut under Tools > Options > Environment >
+Keyboard (search `Terminal.SendCtrl`).
 
 ## Close terminal
 
