@@ -1,6 +1,6 @@
 # VsTerminalZoom
 
-Keyboard font zoom, a Shift+Enter newline and new/close-terminal keys for the Visual Studio 2026 integrated terminal, matching
+Keyboard font zoom, a Shift+Enter newline and new/close/split-terminal, focus and scrollback keys for the Visual Studio 2026 integrated terminal, matching
 the VS Code terminal bindings used in `keybindings.json`:
 
 | Key (terminal focused) | VS Code command                                   | Visual Studio command     |
@@ -11,6 +11,12 @@ the VS Code terminal bindings used in `keybindings.json`:
 | `Shift+Enter`          | `terminal.sendSequence` `"\u001b\r"` (`/terminal-setup`) | `Terminal.SendShiftEnter` |
 | `Ctrl+Shift+``         | `workbench.action.terminal.new`                   | `Terminal.New`            |
 | `Ctrl+Shift+W`         | `workbench.action.terminal.kill`                  | `Terminal.Close`          |
+| `Ctrl+\`               | `workbench.action.terminal.split`                 | `Terminal.Split`          |
+| `Ctrl+.` / `Ctrl+,`    | `terminal.focusNextPane` / `focusPreviousPane`    | `Terminal.FocusNextPane` / `FocusPreviousPane` |
+| `Ctrl+Shift+.` / `Ctrl+Shift+,` | `terminal.focusNext` / `focusPrevious`   | `Terminal.FocusNext` / `FocusPrevious` |
+| `Ctrl+Shift+Up` / `Down` | `terminal.scrollUp` / `scrollDown` (Ctrl+Alt+PgUp/PgDn by default) | `Terminal.ScrollLineUp` / `ScrollLineDown` |
+| `Ctrl+Shift+PgUp` / `PgDn` | `terminal.scrollUpPage` / `scrollDownPage` (Shift+PgUp/PgDn by default) | `Terminal.ScrollPageUp` / `ScrollPageDown` |
+| `Ctrl+Shift+Home` / `End` | `terminal.scrollToTop` / `scrollToBottom`         | `Terminal.ScrollToTop` / `ScrollToBottom` |
 
 ## New terminal
 
@@ -20,6 +26,34 @@ Ctrl+Shift+`) calls the public `SVsTerminalService`: `GetDefaultProfileAsync` th
 contracts assembly `Microsoft.VisualStudio.Terminal.dll` is not on NuGet; the project references the installed
 copy (`$(VSAPPIDDIR)` from a Developer PowerShell, falling back to the Community install path).
 Windows Terminal gets the same key through a `Terminal.OpenNewTab` keybinding in its settings.json.
+
+## Split terminal
+
+`Terminal.Split` (Terminal scope, Ctrl+\) opens a new default-profile terminal and docks it to the right of the
+focused one. Visual Studio has no public API for docking one tool window beside another (`IVsWindowFrame.SetFramePos`
+only moves and resizes), so `FrameDocker` reaches into the docking engine by reflection:
+`WindowFrame.FrameView` gives the layout `View`, and `DockOperations.Dock(target, docking, DockDirection.Right)` in
+`Microsoft.VisualStudio.Shell.ViewManager.dll` places it. The new terminal's frame is found by diffing the tool
+window list before and after creation (and by its `TerminalWindowGuid`). If the docking step fails, the new
+terminal is still opened as a tab and the status bar says why.
+
+## Switch between terminals
+
+`Terminal.FocusNextPane` / `FocusPreviousPane` (Ctrl+. / Ctrl+,) cycle through the terminals currently on screen,
+sorted by screen position, so two split panes toggle. `Terminal.FocusNext` / `FocusPrevious` (Ctrl+Shift+. /
+Ctrl+Shift+,) cycle through every open terminal, hidden tabs included. All four are Terminal scope only, so
+Ctrl+, keeps opening Go To All and Ctrl+Shift+. / Ctrl+Shift+, keep switching document tabs everywhere else,
+exactly like the `terminalFocus` condition on the VS Code bindings.
+
+## Scroll the scrollback
+
+Visual Studio's terminal only scrolls with the mouse wheel. `Terminal.ScrollLineUp` / `ScrollLineDown`
+(Ctrl+Shift+Up / Down), `ScrollPageUp` / `ScrollPageDown` (Ctrl+Shift+PgUp / PgDn) and `ScrollToTop` /
+`ScrollToBottom` (Ctrl+Shift+Home / End) add Windows Terminal's keys. They drive the Windows Terminal control's
+own scroll bar and its `TerminalContainer.UserScroll(viewTop)`, the path the scroll bar's thumb uses. When the
+terminal has no scrollback, which is what alternate-screen programs such as Claude Code's fullscreen renderer
+or vim present, the key's xterm sequence (`ESC [1;6A` and friends) is written to the program instead, so the same
+keys scroll Claude Code's own viewport there.
 
 ## Close terminal
 
@@ -57,6 +91,12 @@ size in Options after a Reset if you want one.
 The bindings use the Terminal key scope, so they only fire while the terminal has focus. Rebind them
 under Tools > Options > Environment > Keyboard (search `Terminal.FontZoom`). The commands also appear
 at the bottom of the Tools menu.
+
+## Troubleshooting
+
+Every command writes what it did to `%LOCALAPPDATA%\VsTerminalZoom\VsTerminalZoom.log` (one line per step, with the
+docking engine's view and group types for `Terminal.Split`). Failures also go to the status bar and, when Visual
+Studio runs with `/log`, to its ActivityLog.
 
 ## Build
 

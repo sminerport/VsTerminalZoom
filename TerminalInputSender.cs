@@ -56,6 +56,19 @@ namespace VsTerminalZoom
                 return false;
             }
 
+            if (!TryWriteInput(terminal, text, out string failure))
+            {
+                LastFailure = failure;
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>Feeds <paramref name="text"/> to the terminal view's pty through its public WriteInput(string).</summary>
+        internal static bool TryWriteInput(FrameworkElement terminal, string text, out string failure)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
             MethodInfo write = terminal.GetType().GetMethod(
                 "WriteInput",
                 BindingFlags.Public | BindingFlags.Instance,
@@ -64,15 +77,26 @@ namespace VsTerminalZoom
                 null);
             if (write == null)
             {
-                LastFailure = terminal.GetType().FullName + " has no public WriteInput(string)";
+                failure = terminal.GetType().FullName + " has no public WriteInput(string)";
                 return false;
             }
 
-            write.Invoke(terminal, new object[] { text });
+            try
+            {
+                write.Invoke(terminal, new object[] { text });
+            }
+            catch (TargetInvocationException ex)
+            {
+                Exception inner = ex.GetBaseException();
+                failure = "WriteInput threw " + inner.GetType().Name + ": " + inner.Message;
+                return false;
+            }
+
+            failure = null;
             return true;
         }
 
-        private static FrameworkElement FindFocusedTerminal()
+        internal static FrameworkElement FindFocusedTerminal()
         {
             IntPtr focus = GetFocus();
 
@@ -153,7 +177,7 @@ namespace VsTerminalZoom
             return false;
         }
 
-        private static IEnumerable<FrameworkElement> Descendants(DependencyObject root, string typeFullName)
+        internal static IEnumerable<FrameworkElement> Descendants(DependencyObject root, string typeFullName)
         {
             foreach (DependencyObject node in Walk(root))
             {
@@ -164,7 +188,7 @@ namespace VsTerminalZoom
             }
         }
 
-        private static IEnumerable<T> DescendantsOfType<T>(DependencyObject root) where T : DependencyObject
+        internal static IEnumerable<T> DescendantsOfType<T>(DependencyObject root) where T : DependencyObject
         {
             foreach (DependencyObject node in Walk(root))
             {

@@ -68,13 +68,113 @@
           <LocCanonicalName>.Terminal.Close</LocCanonicalName>
         </Strings>
       </Button>
+      <!-- Opens a new default-profile terminal and docks it to the right of the focused one
+           (VS Code: workbench.action.terminal.split, Ctrl+\). Docking uses VS internals; see FrameDocker.cs. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSplit" priority="0x0106" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal S&amp;plit (Side by Side)</ButtonText>
+          <CanonicalName>.Terminal.Split</CanonicalName>
+          <LocCanonicalName>.Terminal.Split</LocCanonicalName>
+        </Strings>
+      </Button>
+      <!-- Focus switching, mirroring the VS Code bindings: Ctrl+. / Ctrl+, cycle the terminals on screen (split
+           panes), Ctrl+Shift+. / Ctrl+Shift+, cycle every open terminal including hidden tabs. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNextPane" priority="0x0107" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Next Pane</ButtonText>
+          <CanonicalName>.Terminal.FocusNextPane</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusNextPane</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPreviousPane" priority="0x0108" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Previous Pane</ButtonText>
+          <CanonicalName>.Terminal.FocusPreviousPane</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusPreviousPane</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNext" priority="0x0109" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Next</ButtonText>
+          <CanonicalName>.Terminal.FocusNext</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusNext</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPrevious" priority="0x010A" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <Strings>
+          <ButtonText>Terminal Focus Previous</ButtonText>
+          <CanonicalName>.Terminal.FocusPrevious</CanonicalName>
+          <LocCanonicalName>.Terminal.FocusPrevious</LocCanonicalName>
+        </Strings>
+      </Button>
+      <!-- Scrollback from the keyboard, mirroring Windows Terminal: Ctrl+Shift+Up/Down one line, Ctrl+Shift+PgUp/PgDn
+           one screen, Ctrl+Shift+Home/End to the ends. With no scrollback (alternate-screen programs) the key is passed through. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineUp" priority="0x010B" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Line Up</ButtonText>
+          <CanonicalName>.Terminal.ScrollLineUp</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollLineUp</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineDown" priority="0x010C" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Line Down</ButtonText>
+          <CanonicalName>.Terminal.ScrollLineDown</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollLineDown</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageUp" priority="0x010D" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Page Up</ButtonText>
+          <CanonicalName>.Terminal.ScrollPageUp</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollPageUp</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageDown" priority="0x010E" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll Page Down</ButtonText>
+          <CanonicalName>.Terminal.ScrollPageDown</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollPageDown</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToTop" priority="0x010F" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll To Top</ButtonText>
+          <CanonicalName>.Terminal.ScrollToTop</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollToTop</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToBottom" priority="0x0110" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Scroll To Bottom</ButtonText>
+          <CanonicalName>.Terminal.ScrollToBottom</CanonicalName>
+          <LocCanonicalName>.Terminal.ScrollToBottom</LocCanonicalName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
-  <!-- Zoom, Shift+Enter and Close are scoped to the Terminal tool window (same scope Terminal.Copy / Terminal.Paste
-       use), which mirrors VS Code's "when": "terminalFocus"; in that scope they win over Global bindings such as
+  <!-- Every command except Terminal.New (zoom, Shift+Enter, close, split, focus switching and scrollback) is scoped to the Terminal tool window (same scope Terminal.Copy / Terminal.Paste
+       use), which mirrors VS Code's "when": "terminalFocus"; in that scope the bindings win over Global ones such as
        Ctrl+Shift+W = Window.CloseDocumentWindow. Terminal.New is Global (guidVSStd97), like VS Code's default
-       Ctrl+Shift+` binding, so it works from the editor too. VK_OEM_3 is the ` / ~ key on US layouts. -->
+       Ctrl+Shift+` binding, so it works from the editor too. VK_OEM_3 is the ` / ~ key and VK_OEM_5 the \ | key on US layouts. -->
   <KeyBindings>
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFontZoomIn" editor="guidTerminalScope" key1="VK_OEM_PLUS" mod1="Control Alt" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFontZoomOut" editor="guidTerminalScope" key1="VK_OEM_MINUS" mod1="Control Alt" />
@@ -82,6 +182,17 @@
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendShiftEnter" editor="guidTerminalScope" key1="VK_RETURN" mod1="Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalNew" editor="guidVSStd97" key1="VK_OEM_3" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalClose" editor="guidTerminalScope" key1="W" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSplit" editor="guidTerminalScope" key1="VK_OEM_5" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNextPane" editor="guidTerminalScope" key1="VK_OEM_PERIOD" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPreviousPane" editor="guidTerminalScope" key1="VK_OEM_COMMA" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusNext" editor="guidTerminalScope" key1="VK_OEM_PERIOD" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalFocusPrevious" editor="guidTerminalScope" key1="VK_OEM_COMMA" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineUp" editor="guidTerminalScope" key1="VK_UP" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollLineDown" editor="guidTerminalScope" key1="VK_DOWN" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageUp" editor="guidTerminalScope" key1="VK_PRIOR" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageDown" editor="guidTerminalScope" key1="VK_NEXT" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToTop" editor="guidTerminalScope" key1="VK_HOME" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToBottom" editor="guidTerminalScope" key1="VK_END" mod1="Control Shift" />
   </KeyBindings>
 
   <Symbols>
@@ -95,6 +206,17 @@
       <IDSymbol name="cmdidTerminalSendShiftEnter" value="0x0103" />
       <IDSymbol name="cmdidTerminalNew" value="0x0104" />
       <IDSymbol name="cmdidTerminalClose" value="0x0105" />
+      <IDSymbol name="cmdidTerminalSplit" value="0x0106" />
+      <IDSymbol name="cmdidTerminalFocusNextPane" value="0x0107" />
+      <IDSymbol name="cmdidTerminalFocusPreviousPane" value="0x0108" />
+      <IDSymbol name="cmdidTerminalFocusNext" value="0x0109" />
+      <IDSymbol name="cmdidTerminalFocusPrevious" value="0x010A" />
+      <IDSymbol name="cmdidTerminalScrollLineUp" value="0x010B" />
+      <IDSymbol name="cmdidTerminalScrollLineDown" value="0x010C" />
+      <IDSymbol name="cmdidTerminalScrollPageUp" value="0x010D" />
+      <IDSymbol name="cmdidTerminalScrollPageDown" value="0x010E" />
+      <IDSymbol name="cmdidTerminalScrollToTop" value="0x010F" />
+      <IDSymbol name="cmdidTerminalScrollToBottom" value="0x0110" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
