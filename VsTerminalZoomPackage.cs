@@ -162,7 +162,13 @@ namespace VsTerminalZoom
                 return;
             }
 
-            selection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object active);
+            int activeHr = selection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object active);
+            if (ErrorHandler.Failed(activeHr))
+            {
+                ReportFailure(commandName + ": could not read the active window (0x" + activeHr.ToString("X8") + ").");
+                return;
+            }
+
             object activePane = active is IVsWindowFrame activeFrame ? GetDocView(activeFrame) : null;
             int current = candidates.FindIndex(c => activePane != null && ReferenceEquals(GetDocView(c.Key), activePane));
             int target = current < 0 ? 0 : (((current + step) % candidates.Count) + candidates.Count) % candidates.Count;
