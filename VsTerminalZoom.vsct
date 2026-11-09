@@ -171,8 +171,8 @@
     </Buttons>
   </Commands>
 
-  <!-- Zoom, Shift+Enter and Close are scoped to the Terminal tool window (same scope Terminal.Copy / Terminal.Paste
-       use), which mirrors VS Code's "when": "terminalFocus"; in that scope they win over Global bindings such as
+  <!-- Every command except Terminal.New (zoom, Shift+Enter, close, split, focus switching and scrollback) is scoped to the Terminal tool window (same scope Terminal.Copy / Terminal.Paste
+       use), which mirrors VS Code's "when": "terminalFocus"; in that scope the bindings win over Global ones such as
        Ctrl+Shift+W = Window.CloseDocumentWindow. Terminal.New is Global (guidVSStd97), like VS Code's default
        Ctrl+Shift+` binding, so it works from the editor too. VK_OEM_3 is the ` / ~ key and VK_OEM_5 the \ | key on US layouts. -->
   <KeyBindings>

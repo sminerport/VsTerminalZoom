@@ -81,7 +81,17 @@ namespace VsTerminalZoom
                 return false;
             }
 
-            write.Invoke(terminal, new object[] { text });
+            try
+            {
+                write.Invoke(terminal, new object[] { text });
+            }
+            catch (TargetInvocationException ex)
+            {
+                Exception inner = ex.GetBaseException();
+                failure = "WriteInput threw " + inner.GetType().Name + ": " + inner.Message;
+                return false;
+            }
+
             failure = null;
             return true;
         }

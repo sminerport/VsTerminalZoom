@@ -55,6 +55,11 @@ namespace VsTerminalZoom
 
         private const string TerminalPaneTypePrefix = "Microsoft.VisualStudio.Terminal.TerminalWindow";
 
+        // Terminal.Split waits up to NewFrameLookupAttempts x NewFrameLookupDelay (3 seconds) for the new
+        // terminal's tool window frame to appear in the shell's frame list.
+        private const int NewFrameLookupAttempts = 30;
+        private static readonly TimeSpan NewFrameLookupDelay = TimeSpan.FromMilliseconds(100);
+
         private TerminalFontZoom zoom;
         private TerminalInputSender inputSender;
 
@@ -147,7 +152,7 @@ namespace VsTerminalZoom
 
             if (visibleOnly)
             {
-                // Stable sort by screen position so side-by-side panes cycle left to right.
+                // Order by screen position (x, then y) so side-by-side panes cycle left to right.
                 candidates.Sort((a, b) => a.Value.X != b.Value.X ? a.Value.X.CompareTo(b.Value.X) : a.Value.Y.CompareTo(b.Value.Y));
             }
 
@@ -322,13 +327,13 @@ namespace VsTerminalZoom
 
             IVsWindowFrame newFrame = null;
             int attempts = 0;
-            while (newFrame == null && attempts < 30)
+            while (newFrame == null && attempts < NewFrameLookupAttempts)
             {
                 attempts++;
                 newFrame = FindNewTerminalFrame(uiShell, existingPanes, id);
                 if (newFrame == null)
                 {
-                    await Task.Delay(100, cancellationToken);
+                    await Task.Delay(NewFrameLookupDelay, cancellationToken);
                     await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
                 }
             }
