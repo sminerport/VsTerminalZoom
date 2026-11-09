@@ -17,6 +17,7 @@ the VS Code terminal bindings used in `keybindings.json`:
 | `Ctrl+Shift+Up` / `Down` | `terminal.scrollUp` / `scrollDown` (Ctrl+Alt+PgUp/PgDn by default) | `Terminal.ScrollLineUp` / `ScrollLineDown` |
 | `Ctrl+Shift+PgUp` / `PgDn` | `terminal.scrollUpPage` / `scrollDownPage` (Shift+PgUp/PgDn by default) | `Terminal.ScrollPageUp` / `ScrollPageDown` |
 | `Ctrl+Shift+Home` / `End` | `terminal.scrollToTop` / `scrollToBottom`         | `Terminal.ScrollToTop` / `ScrollToBottom` |
+| `Ctrl+R`, `S`, `T`, `F`, `O`, `G`, `E`, `K`, `N`, `P`, `W`, `Y` | sent to the shell by default | `Terminal.SendCtrl<letter>` |
 
 ## New terminal
 
@@ -59,6 +60,19 @@ own scroll bar and its `TerminalContainer.UserScroll(viewTop)`, the path the scr
 terminal has no scrollback, which is what alternate-screen programs such as Claude Code's fullscreen renderer
 or vim present, the key's xterm sequence (`ESC [1;6A` and friends) is written to the program instead, so the same
 keys scroll Claude Code's own viewport there.
+
+## Keys Visual Studio would otherwise take
+
+Visual Studio binds many Ctrl+letter keys globally, and those bindings win even while the terminal has focus:
+Ctrl+R is a chord prefix, Ctrl+S saves, Ctrl+T opens Go To All, Ctrl+F opens Find, Ctrl+O opens a file. The
+program in the terminal never sees them, so PSReadLine's history search, Claude Code's `Ctrl+R` rename in
+`claude agents`, `Ctrl+O` transcript and `Ctrl+T` task list all appear dead.
+
+`Terminal.SendCtrlE`, `F`, `G`, `K`, `N`, `O`, `P`, `R`, `S`, `T`, `W` and `Y` are bound to those keys in the
+Terminal scope, where they beat the Global bindings, and write the key's control character (Ctrl+R is 0x12) to
+the pty through the same `WriteInput` path as `Terminal.SendShiftEnter`. Outside the terminal the keys keep
+their Visual Studio meaning. To give one back to Visual Studio inside the terminal, remove its shortcut under
+Tools > Options > Environment > Keyboard (search `Terminal.SendCtrl`).
 
 ## Close terminal
 
