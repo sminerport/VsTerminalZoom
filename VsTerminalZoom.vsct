@@ -168,6 +168,117 @@
           <LocCanonicalName>.Terminal.ScrollToBottom</LocCanonicalName>
         </Strings>
       </Button>
+      <!-- Ctrl+letter keys Visual Studio binds globally (Ctrl+R chord prefix, Ctrl+S save, Ctrl+T Go To All, ...)
+           never reach the program in the terminal. These commands take the key back in the Terminal scope and
+           write its control character to the pty. Ids must stay in the order of PassthroughLetters in the package. -->
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlE" priority="0x0111" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+E to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlE</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlE</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlF" priority="0x0112" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+F to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlF</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlF</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlG" priority="0x0113" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+G to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlG</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlG</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlK" priority="0x0114" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+K to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlK</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlK</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlN" priority="0x0115" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+N to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlN</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlN</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlO" priority="0x0116" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+O to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlO</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlO</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlP" priority="0x0117" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+P to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlP</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlP</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlR" priority="0x0118" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+R to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlR</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlR</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlS" priority="0x0119" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+S to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlS</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlS</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlT" priority="0x011A" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+T to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlT</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlT</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlW" priority="0x011B" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+W to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlW</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlW</LocCanonicalName>
+        </Strings>
+      </Button>
+      <Button guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlY" priority="0x011C" type="Button">
+        <Parent guid="guidVsTerminalZoomCmdSet" id="TerminalZoomGroup" />
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <ButtonText>Terminal Send Ctrl+Y to Program</ButtonText>
+          <CanonicalName>.Terminal.SendCtrlY</CanonicalName>
+          <LocCanonicalName>.Terminal.SendCtrlY</LocCanonicalName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -193,6 +304,18 @@
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollPageDown" editor="guidTerminalScope" key1="VK_NEXT" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToTop" editor="guidTerminalScope" key1="VK_HOME" mod1="Control Shift" />
     <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalScrollToBottom" editor="guidTerminalScope" key1="VK_END" mod1="Control Shift" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlE" editor="guidTerminalScope" key1="E" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlF" editor="guidTerminalScope" key1="F" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlG" editor="guidTerminalScope" key1="G" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlK" editor="guidTerminalScope" key1="K" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlN" editor="guidTerminalScope" key1="N" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlO" editor="guidTerminalScope" key1="O" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlP" editor="guidTerminalScope" key1="P" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlR" editor="guidTerminalScope" key1="R" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlS" editor="guidTerminalScope" key1="S" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlT" editor="guidTerminalScope" key1="T" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlW" editor="guidTerminalScope" key1="W" mod1="Control" />
+    <KeyBinding guid="guidVsTerminalZoomCmdSet" id="cmdidTerminalSendCtrlY" editor="guidTerminalScope" key1="Y" mod1="Control" />
   </KeyBindings>
 
   <Symbols>
@@ -217,6 +340,18 @@
       <IDSymbol name="cmdidTerminalScrollPageDown" value="0x010E" />
       <IDSymbol name="cmdidTerminalScrollToTop" value="0x010F" />
       <IDSymbol name="cmdidTerminalScrollToBottom" value="0x0110" />
+      <IDSymbol name="cmdidTerminalSendCtrlE" value="0x0111" />
+      <IDSymbol name="cmdidTerminalSendCtrlF" value="0x0112" />
+      <IDSymbol name="cmdidTerminalSendCtrlG" value="0x0113" />
+      <IDSymbol name="cmdidTerminalSendCtrlK" value="0x0114" />
+      <IDSymbol name="cmdidTerminalSendCtrlN" value="0x0115" />
+      <IDSymbol name="cmdidTerminalSendCtrlO" value="0x0116" />
+      <IDSymbol name="cmdidTerminalSendCtrlP" value="0x0117" />
+      <IDSymbol name="cmdidTerminalSendCtrlR" value="0x0118" />
+      <IDSymbol name="cmdidTerminalSendCtrlS" value="0x0119" />
+      <IDSymbol name="cmdidTerminalSendCtrlT" value="0x011A" />
+      <IDSymbol name="cmdidTerminalSendCtrlW" value="0x011B" />
+      <IDSymbol name="cmdidTerminalSendCtrlY" value="0x011C" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
